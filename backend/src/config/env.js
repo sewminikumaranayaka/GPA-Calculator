@@ -10,6 +10,8 @@ export const env = {
   requestBodyLimit: process.env.REQUEST_BODY_LIMIT || '10kb',
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
+  openaiApiKey: process.env.OPENAI_API_KEY,
+  openaiModel: process.env.OPENAI_MODEL || 'gpt-5.4-mini',
 };
 
 if (!env.databaseUrl) {
@@ -18,4 +20,8 @@ if (!env.databaseUrl) {
 
 if (!env.jwtSecret) {
   console.warn('JWT_SECRET is not configured. Auth token generation will fail until backend/.env is set.');
+}
+
+if (!env.openaiApiKey) {
+  console.warn('OPENAI_API_KEY is not configured. AI endpoints will fail until backend/.env is set.');
 }
