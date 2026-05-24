@@ -36,11 +36,19 @@ export async function predictGpa(payload) {
     futureCourses: normalized.futureCourses,
   };
 
-  const explanation = await generatePredictionExplanation(prediction);
+  let explanation = null;
+  let explanationError = null;
+
+  try {
+    explanation = await generatePredictionExplanation(prediction);
+  } catch (error) {
+    explanationError = error.message || 'AI explanation is unavailable.';
+  }
 
   return {
     ...prediction,
     explanation,
+    explanationError,
   };
 }
 
