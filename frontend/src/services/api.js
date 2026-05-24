@@ -27,6 +27,11 @@ export async function loginUser(payload) {
   return response.data;
 }
 
+export async function registerUser(payload) {
+  const response = await api.post('/auth/register', payload);
+  return response.data;
+}
+
 export async function calculateSemesterGpa(courses) {
   const response = await api.post('/gpa/semester', { courses });
   return response.data;

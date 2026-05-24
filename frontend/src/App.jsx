@@ -6,6 +6,7 @@ import GpaPrediction from './pages/GpaPrediction.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
 import PerformanceAnalysis from './pages/PerformanceAnalysis.jsx';
+import Signup from './pages/Signup.jsx';
 import StudyRecommendations from './pages/StudyRecommendations.jsx';
 import TargetGpaPlanner from './pages/TargetGpaPlanner.jsx';
 
@@ -13,6 +14,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route element={<MainLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="/gpa-calculator" element={<GpaCalculator />} />

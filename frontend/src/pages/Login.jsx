@@ -1,6 +1,6 @@
 import { AlertCircle, GraduationCap, Loader2, LogIn } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api.js';
 
 export default function Login() {
@@ -76,6 +76,13 @@ export default function Login() {
             {loading ? <Loader2 className="animate-spin" size={18} aria-hidden="true" /> : <LogIn size={18} aria-hidden="true" />}
             Sign in
           </button>
+
+          <Link
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            to="/signup"
+          >
+            Create account
+          </Link>
         </form>
       </section>
     </main>
