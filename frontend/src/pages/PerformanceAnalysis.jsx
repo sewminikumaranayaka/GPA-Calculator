@@ -8,7 +8,7 @@ import {
   RefreshCw,
   Target,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import MetricCard from '../components/MetricCard.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Panel from '../components/Panel.jsx';
@@ -36,7 +36,7 @@ export default function PerformanceAnalysis() {
     [courses, gpa],
   );
 
-  async function loadAnalysis() {
+  const loadAnalysis = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -52,11 +52,11 @@ export default function PerformanceAnalysis() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [payload]);
 
   useEffect(() => {
     loadAnalysis();
-  }, [payload]);
+  }, [loadAnalysis]);
 
   const weakSubjects = analysis?.weakSubjects || [];
   const strengths = analysis?.performanceAnalysis?.strengths || [];
