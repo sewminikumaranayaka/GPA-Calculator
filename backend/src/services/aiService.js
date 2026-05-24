@@ -74,6 +74,28 @@ const analysisSchema = {
   required: ['performanceAnalysis', 'weakSubjects', 'academicInsights', 'studyRecommendations'],
 };
 
+const predictionExplanationSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    summary: { type: 'string' },
+    cumulativeImpact: { type: 'string' },
+    keyDrivers: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    risks: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+    recommendations: {
+      type: 'array',
+      items: { type: 'string' },
+    },
+  },
+  required: ['summary', 'cumulativeImpact', 'keyDrivers', 'risks', 'recommendations'],
+};
+
 export async function generatePerformanceAnalysis(payload) {
   const analysis = await generateAcademicAnalysis(payload);
   return analysis.performanceAnalysis;
@@ -123,6 +145,41 @@ export async function generateAcademicAnalysis(payload) {
         name: 'academic_ai_analysis',
         strict: true,
         schema: analysisSchema,
+      },
+    },
+  });
+
+  return parseStructuredResponse(response);
+}
+
+export async function generatePredictionExplanation(payload) {
+  const openai = createOpenAiClient();
+
+  const response = await openai.responses.create({
+    model: env.openaiModel,
+    instructions: [
+      'You are an academic advisor explaining a GPA prediction.',
+      'Use only the supplied GPA projection data.',
+      'Explain the credit-weighted impact clearly and practically.',
+      'Respond as structured JSON matching the provided schema.',
+    ].join(' '),
+    input: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'input_text',
+            text: JSON.stringify(payload),
+          },
+        ],
+      },
+    ],
+    text: {
+      format: {
+        type: 'json_schema',
+        name: 'gpa_prediction_explanation',
+        strict: true,
+        schema: predictionExplanationSchema,
       },
     },
   });
