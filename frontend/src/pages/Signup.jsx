@@ -164,6 +164,23 @@ function createLocalSignupSession(form) {
     mode: 'local-demo',
   };
 
+  saveLocalAccount({
+    ...user,
+    password: form.password,
+  });
   window.localStorage.setItem('gpa-intelligence-token', `local-demo-${user.id}`);
   window.localStorage.setItem('gpa-intelligence-user', JSON.stringify(user));
+}
+
+function saveLocalAccount(account) {
+  const accounts = getLocalAccounts().filter((item) => item.email !== account.email);
+  window.localStorage.setItem('gpa-intelligence-local-accounts', JSON.stringify([...accounts, account]));
+}
+
+function getLocalAccounts() {
+  try {
+    return JSON.parse(window.localStorage.getItem('gpa-intelligence-local-accounts') || '[]');
+  } catch {
+    return [];
+  }
 }
