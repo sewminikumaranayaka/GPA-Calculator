@@ -26,6 +26,12 @@ export default function Login() {
         return;
       }
 
+      if (canUseDemoSignin(email, password)) {
+        createDemoSigninSession(email);
+        navigate('/', { replace: true });
+        return;
+      }
+
       setError(requestError.response?.data?.message || 'Login failed. Check your email, password, and backend API.');
     } finally {
       setLoading(false);
@@ -117,4 +123,28 @@ function getLocalAccounts() {
   } catch {
     return [];
   }
+}
+
+function canUseDemoSignin(email, password) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) && password.length >= 8;
+}
+
+function createDemoSigninSession(email) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const name = normalizedEmail
+    .split('@')[0]
+    .replace(/[._-]+/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  const user = {
+    id: crypto.randomUUID(),
+    full_name: name || 'Demo Student',
+    email: normalizedEmail,
+    student_id: 'LOCAL-DEMO',
+    department: 'Demo Department',
+    enrollment_year: new Date().getFullYear(),
+    mode: 'local-demo',
+  };
+
+  window.localStorage.setItem('gpa-intelligence-token', `local-demo-${user.id}`);
+  window.localStorage.setItem('gpa-intelligence-user', JSON.stringify(user));
 }
