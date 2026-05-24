@@ -31,3 +31,8 @@ export async function planTargetGpa(payload) {
   const response = await api.post('/planner/target-gpa', payload);
   return response.data;
 }
+
+export async function generateStudyRecommendations(payload) {
+  const response = await api.post('/recommendations/study-plan', payload);
+  return response.data;
+}
