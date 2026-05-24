@@ -104,7 +104,8 @@ function restoreLocalSession(email, password) {
     return false;
   }
 
-  const { password: _password, ...user } = account;
+  const user = { ...account };
+  delete user.password;
   window.localStorage.setItem('gpa-intelligence-token', `local-demo-${user.id || crypto.randomUUID()}`);
   window.localStorage.setItem('gpa-intelligence-user', JSON.stringify(user));
   return true;
