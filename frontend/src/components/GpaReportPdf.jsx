@@ -136,9 +136,14 @@ const styles = StyleSheet.create({
 
 export default function GpaReportPdf({ aiAnalysis, report }) {
   const generatedAt = new Date().toLocaleDateString();
-  const insights = aiAnalysis?.academicInsights || [];
-  const recommendations = aiAnalysis?.studyRecommendations || [];
-  const aiSummary = aiAnalysis?.performanceAnalysis;
+  const fallbackInsights = buildFallbackInsights(report);
+  const fallbackRecommendations = buildFallbackRecommendations(report);
+  const insights = aiAnalysis?.academicInsights?.length ? aiAnalysis.academicInsights : fallbackInsights;
+  const recommendations = aiAnalysis?.studyRecommendations?.length ? aiAnalysis.studyRecommendations : fallbackRecommendations;
+  const aiSummary = aiAnalysis?.performanceAnalysis || {
+    summary: fallbackInsights[0].insight,
+    trend: fallbackInsights[1].insight,
+  };
 
   return (
     <Document title="GPA Intelligence Report">
@@ -188,14 +193,8 @@ export default function GpaReportPdf({ aiAnalysis, report }) {
         <View style={styles.twoColumn}>
           <View style={[styles.section, styles.column]}>
             <Text style={styles.sectionTitle}>AI Insights</Text>
-            {aiSummary ? (
-              <>
-                <Text style={styles.muted}>{aiSummary.summary}</Text>
-                <Text style={[styles.muted, { marginTop: 6 }]}>{aiSummary.trend}</Text>
-              </>
-            ) : (
-              <Text style={styles.muted}>AI insights were not loaded before export.</Text>
-            )}
+            <Text style={styles.muted}>{aiSummary.summary}</Text>
+            <Text style={[styles.muted, { marginTop: 6 }]}>{aiSummary.trend}</Text>
             {insights.slice(0, 4).map((insight) => (
               <View key={insight.title} style={{ marginTop: 8 }}>
                 <Text style={{ fontWeight: 700 }}>{insight.title}</Text>
@@ -310,4 +309,35 @@ function toPoint(value, index, total, width, height, padding) {
 
 function formatPoint(point) {
   return `${point.x},${point.y}`;
+}
+
+function buildFallbackInsights(report) {
+  const weakest = report.weakSubjects[0];
+  const strongest = report.strongestSubject;
+
+  return [
+    {
+      title: 'GPA standing',
+      insight: `The current semester GPA is ${report.gpa.toFixed(2)}, with a projected cumulative GPA of ${report.projectedCumulativeGpa.toFixed(2)}.`,
+    },
+    {
+      title: 'Performance trend',
+      insight: strongest
+        ? `${strongest.name} is the strongest current subject and can anchor the study strategy.`
+        : 'No strongest subject is available yet because the course list is empty.',
+    },
+    {
+      title: 'Focus area',
+      insight: weakest
+        ? `${weakest.name} has the largest improvement opportunity at ${Number(weakest.gradePoints).toFixed(1)} grade points.`
+        : 'No weak subjects were detected from the current course list.',
+    },
+  ];
+}
+
+function buildFallbackRecommendations(report) {
+  return report.weakSubjects.map((subject) => ({
+    subject: subject.name,
+    recommendation: `Prioritize ${subject.name} with targeted practice, error review, and weekly checkpoint revision.`,
+  }));
 }
