@@ -7,8 +7,23 @@ export const api = axios.create({
   },
 });
 
+api.interceptors.request.use((config) => {
+  const token = window.localStorage.getItem('gpa-intelligence-token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 export async function getHealthStatus() {
   const response = await api.get('/health');
+  return response.data;
+}
+
+export async function loginUser(payload) {
+  const response = await api.post('/auth/login', payload);
   return response.data;
 }
 

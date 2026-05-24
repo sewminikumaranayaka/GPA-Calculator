@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   BarChart3,
   Bell,
@@ -28,6 +28,7 @@ const navItems = [
 ];
 
 export default function MainLayout() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const ThemeIcon = isDark ? Sun : Moon;
@@ -37,7 +38,7 @@ export default function MainLayout() {
       window.localStorage.removeItem(key);
       window.sessionStorage.removeItem(key);
     });
-    window.location.assign('/');
+    navigate('/login', { replace: true });
   }
 
   return (
