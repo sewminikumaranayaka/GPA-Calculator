@@ -16,3 +16,8 @@ export async function calculateSemesterGpa(courses) {
   const response = await api.post('/gpa/semester', { courses });
   return response.data;
 }
+
+export async function getAiAcademicAnalysis(payload) {
+  const response = await api.post('/ai/analysis', payload);
+  return response.data;
+}
