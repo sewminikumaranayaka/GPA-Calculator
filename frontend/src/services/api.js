@@ -11,3 +11,8 @@ export async function getHealthStatus() {
   const response = await api.get('/health');
   return response.data;
 }
+
+export async function calculateSemesterGpa(courses) {
+  const response = await api.post('/gpa/semester', { courses });
+  return response.data;
+}
