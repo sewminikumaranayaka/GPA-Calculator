@@ -35,3 +35,35 @@ select {
     @apply transition-colors duration-200;
   }
 }
+
+@layer utilities {
+  .dark .bg-white {
+    background-color: #0f172a;
+  }
+
+  .dark .bg-slate-50,
+  .dark .bg-slate-100 {
+    background-color: #1e293b;
+  }
+
+  .dark .text-ink,
+  .dark .text-slate-700,
+  .dark .text-slate-600 {
+    color: #e2e8f0;
+  }
+
+  .dark .text-slate-500 {
+    color: #94a3b8;
+  }
+
+  .dark .border-slate-100,
+  .dark .border-slate-200,
+  .dark .border-slate-300 {
+    border-color: #334155;
+  }
+
+  .dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+  .dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #334155;
+  }
+}
