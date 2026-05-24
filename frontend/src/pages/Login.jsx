@@ -21,7 +21,7 @@ export default function Login() {
       window.localStorage.setItem('gpa-intelligence-user', JSON.stringify(response.data.user));
       navigate('/', { replace: true });
     } catch (requestError) {
-      if (!requestError.response && restoreLocalSession(email)) {
+      if (restoreLocalSession(email, password)) {
         navigate('/', { replace: true });
         return;
       }
@@ -94,24 +94,26 @@ export default function Login() {
   );
 }
 
-function restoreLocalSession(email) {
-  const storedUser = window.localStorage.getItem('gpa-intelligence-user');
+function restoreLocalSession(email, password) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const account = getLocalAccounts().find(
+    (item) => item.email?.toLowerCase() === normalizedEmail && item.password === password,
+  );
 
-  if (!storedUser) {
+  if (!account) {
     return false;
   }
 
+  const { password: _password, ...user } = account;
+  window.localStorage.setItem('gpa-intelligence-token', `local-demo-${user.id || crypto.randomUUID()}`);
+  window.localStorage.setItem('gpa-intelligence-user', JSON.stringify(user));
+  return true;
+}
+
+function getLocalAccounts() {
   try {
-    const user = JSON.parse(storedUser);
-    const emailMatches = user.email?.toLowerCase() === email.trim().toLowerCase();
-
-    if (!emailMatches) {
-      return false;
-    }
-
-    window.localStorage.setItem('gpa-intelligence-token', `local-demo-${user.id || crypto.randomUUID()}`);
-    return true;
+    return JSON.parse(window.localStorage.getItem('gpa-intelligence-local-accounts') || '[]');
   } catch {
-    return false;
+    return [];
   }
 }
