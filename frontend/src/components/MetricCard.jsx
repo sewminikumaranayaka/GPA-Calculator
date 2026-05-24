@@ -8,12 +8,12 @@ export default function MetricCard({ label, value, helper, tone = 'ocean' }) {
   };
 
   return (
-    <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft">
+    <article className="rounded-lg border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-700 dark:bg-slate-900 dark:shadow-none">
       <div className={`mb-4 inline-flex rounded-md px-2 py-1 text-xs font-semibold ${toneClasses[tone] || toneClasses.ocean}`}>
         {label}
       </div>
-      <p className="text-3xl font-semibold text-ink">{value}</p>
-      <p className="mt-2 text-sm text-slate-500">{helper}</p>
+      <p className="text-3xl font-semibold text-ink dark:text-slate-100">{value}</p>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{helper}</p>
     </article>
   );
 }

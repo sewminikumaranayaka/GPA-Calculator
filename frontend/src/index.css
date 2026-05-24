@@ -10,14 +10,28 @@
     sans-serif;
 }
 
+.dark {
+  color: #e2e8f0;
+  background: #020617;
+}
+
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
 }
 
 button,
 input,
 select {
   font: inherit;
+}
+
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
 }
