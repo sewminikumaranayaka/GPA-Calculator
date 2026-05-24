@@ -8,11 +8,14 @@ import {
   LayoutDashboard,
   LineChart,
   Menu,
+  Moon,
   Search,
+  Sun,
   Target,
   X,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,13 +28,15 @@ const navItems = [
 
 export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
+  const ThemeIcon = isDark ? Sun : Moon;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-ink">
+    <div className="min-h-screen bg-slate-100 text-ink transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
       {sidebarOpen && (
         <button
           aria-label="Close navigation overlay"
-          className="fixed inset-0 z-30 bg-slate-950/30 lg:hidden"
+          className="fixed inset-0 z-30 bg-slate-950/30 dark:bg-slate-950/70 lg:hidden"
           onClick={() => setSidebarOpen(false)}
           type="button"
         />
@@ -39,23 +44,23 @@ export default function MainLayout() {
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-200 bg-white transition duration-200 dark:border-slate-800 dark:bg-slate-900 lg:translate-x-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         ].join(' ')}
       >
-        <div className="flex h-20 items-center justify-between border-b border-slate-200 px-5">
+        <div className="flex h-20 items-center justify-between border-b border-slate-200 px-5 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-lg bg-ink text-white">
+            <div className="grid h-11 w-11 place-items-center rounded-lg bg-ink text-white dark:bg-ocean">
               <GraduationCap size={24} aria-hidden="true" />
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-ocean">Academic AI</p>
-              <h1 className="text-base font-semibold text-ink">GPA Intelligence</h1>
+              <h1 className="text-base font-semibold text-ink dark:text-slate-100">GPA Intelligence</h1>
             </div>
           </div>
           <button
             aria-label="Close sidebar"
-            className="rounded-md p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+            className="rounded-md p-2 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 lg:hidden"
             onClick={() => setSidebarOpen(false)}
             type="button"
           >
@@ -74,8 +79,8 @@ export default function MainLayout() {
                 [
                   'flex min-h-11 items-center gap-3 rounded-md px-3 text-sm font-medium transition',
                   isActive
-                    ? 'bg-ink text-white shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-ink',
+                    ? 'bg-ink text-white shadow-sm dark:bg-ocean'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-ink dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white',
                 ].join(' ')
               }
             >
@@ -85,20 +90,20 @@ export default function MainLayout() {
           ))}
         </nav>
 
-        <div className="border-t border-slate-200 p-4">
-          <div className="rounded-lg bg-slate-50 p-4">
-            <p className="text-sm font-semibold text-ink">Current Semester</p>
-            <p className="mt-1 text-sm text-slate-500">Spring 2026 performance tracking</p>
+        <div className="border-t border-slate-200 p-4 dark:border-slate-800">
+          <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-800">
+            <p className="text-sm font-semibold text-ink dark:text-slate-100">Current Semester</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Spring 2026 performance tracking</p>
           </div>
         </div>
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
           <div className="flex h-20 items-center gap-4 px-4 sm:px-6 lg:px-8">
             <button
               aria-label="Open sidebar"
-              className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 lg:hidden"
+              className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
               onClick={() => setSidebarOpen(true)}
               type="button"
             >
@@ -106,18 +111,28 @@ export default function MainLayout() {
             </button>
 
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-slate-500">AI Academic Performance</p>
-              <h2 className="truncate text-xl font-semibold text-ink">Student Success Dashboard</h2>
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">AI Academic Performance</p>
+              <h2 className="truncate text-xl font-semibold text-ink dark:text-slate-100">Student Success Dashboard</h2>
             </div>
 
-            <div className="hidden min-w-64 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 md:flex">
-              <Search size={17} className="text-slate-400" aria-hidden="true" />
-              <span className="text-sm text-slate-500">Search courses, grades, insights</span>
+            <div className="hidden min-w-64 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-700 dark:bg-slate-800 md:flex">
+              <Search size={17} className="text-slate-400 dark:text-slate-500" aria-hidden="true" />
+              <span className="text-sm text-slate-500 dark:text-slate-400">Search courses, grades, insights</span>
             </div>
 
             <button
+              aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+              className="rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              onClick={toggleTheme}
+              title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+              type="button"
+            >
+              <ThemeIcon size={20} />
+            </button>
+
+            <button
               aria-label="Notifications"
-              className="relative rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50"
+              className="relative rounded-md border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               type="button"
             >
               <Bell size={20} />
@@ -126,8 +141,8 @@ export default function MainLayout() {
 
             <div className="hidden items-center gap-3 sm:flex">
               <div className="text-right">
-                <p className="text-sm font-semibold text-ink">Avery Johnson</p>
-                <p className="text-xs text-slate-500">Computer Science</p>
+                <p className="text-sm font-semibold text-ink dark:text-slate-100">Avery Johnson</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Computer Science</p>
               </div>
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-ocean text-sm font-semibold text-white">
                 AJ
