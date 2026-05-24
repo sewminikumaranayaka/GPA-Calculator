@@ -65,37 +65,37 @@ Add screenshots to `docs/screenshots/` and update these links when preparing the
 
 ```text
 GPA Calculator/
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   ├── hooks/
-│   │   ├── layouts/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── package.json
-│   ├── tailwind.config.js
-│   └── vite.config.js
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   ├── utils/
-│   │   ├── app.js
-│   │   └── server.js
-│   ├── .env.example
-│   └── package.json
-├── package.json
-└── README.md
+|-- frontend/
+|   |-- src/
+|   |   |-- components/
+|   |   |-- context/
+|   |   |-- hooks/
+|   |   |-- layouts/
+|   |   |-- pages/
+|   |   |-- services/
+|   |   |-- utils/
+|   |   |-- App.jsx
+|   |   |-- main.jsx
+|   |   `-- index.css
+|   |-- index.html
+|   |-- package.json
+|   |-- tailwind.config.js
+|   `-- vite.config.js
+|-- backend/
+|   |-- src/
+|   |   |-- config/
+|   |   |-- controllers/
+|   |   |-- middleware/
+|   |   |-- models/
+|   |   |-- routes/
+|   |   |-- services/
+|   |   |-- utils/
+|   |   |-- app.js
+|   |   `-- server.js
+|   |-- .env.example
+|   `-- package.json
+|-- package.json
+`-- README.md
 ```
 
 ## Installation Guide
