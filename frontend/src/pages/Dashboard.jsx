@@ -2,10 +2,14 @@ import {
   AlertTriangle,
   ArrowUpRight,
   BookOpenCheck,
+  Download,
   GraduationCap,
+  Loader2,
   Target,
   TrendingUp,
 } from 'lucide-react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -17,46 +21,47 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import GpaReportPdf from '../components/GpaReportPdf.jsx';
 import MetricCard from '../components/MetricCard.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import Panel from '../components/Panel.jsx';
 import { useAcademicData } from '../hooks/useAcademicData.js';
-
-const gpaTrend = [
-  { term: 'Y1 S1', semesterGpa: 3.22, cumulativeGpa: 3.22 },
-  { term: 'Y1 S2', semesterGpa: 3.36, cumulativeGpa: 3.29 },
-  { term: 'Y2 S1', semesterGpa: 3.48, cumulativeGpa: 3.36 },
-  { term: 'Y2 S2', semesterGpa: 3.58, cumulativeGpa: 3.43 },
-  { term: 'Current', semesterGpa: null, cumulativeGpa: null },
-];
+import { getAiAcademicAnalysis } from '../services/api.js';
+import { buildAcademicReportData } from '../utils/academicReport.js';
 
 const chartMargins = { top: 12, right: 18, left: -18, bottom: 0 };
 
 export default function Dashboard() {
   const { courses, gpa } = useAcademicData();
-  const numericGpa = Number(gpa);
-  const credits = courses.reduce((sum, course) => sum + Number(course.credits), 0);
-  const qualityPoints = courses.reduce(
-    (sum, course) => sum + Number(course.credits) * Number(course.gradePoints),
-    0,
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const report = useMemo(() => buildAcademicReportData(courses, gpa), [courses, gpa]);
+  const aiPayload = useMemo(
+    () => ({
+      semesterGpa: Number(gpa),
+      cumulativeGpa: Number(gpa),
+      targetGpa: 3.8,
+      courses: courses.map((course) => ({
+        name: course.name,
+        credits: Number(course.credits),
+        grade: course.grade,
+        gradePoints: Number(course.gradePoints),
+      })),
+    }),
+    [courses, gpa],
   );
-  const projectedCumulativeGpa = calculateProjectedCumulativeGpa(numericGpa);
-  const completedSubjects = courses.length;
-  const weakSubjects = getWeakSubjects(courses);
-  const strongestSubject = getStrongestSubject(courses);
-  const trendData = gpaTrend.map((term) =>
-    term.term === 'Current'
-      ? { ...term, semesterGpa: numericGpa, cumulativeGpa: projectedCumulativeGpa }
-      : term,
-  );
-  const subjectData = courses.map((course) => ({
-    name: compactSubjectName(course.name),
-    fullName: course.name,
-    grade: course.grade,
-    credits: Number(course.credits),
-    performance: Number(course.gradePoints),
-    qualityPoints: Number((Number(course.credits) * Number(course.gradePoints)).toFixed(1)),
-  }));
+
+  const loadAiAnalysis = useCallback(async () => {
+    try {
+      const response = await getAiAcademicAnalysis(aiPayload);
+      setAiAnalysis(response.data);
+    } catch {
+      setAiAnalysis(null);
+    }
+  }, [aiPayload]);
+
+  useEffect(() => {
+    loadAiAnalysis();
+  }, [loadAiAnalysis]);
 
   return (
     <section className="space-y-8">
@@ -64,18 +69,19 @@ export default function Dashboard() {
         eyebrow="Overview"
         title="Academic Performance Dashboard"
         description="Track GPA movement, subject strength, credit load, and focus areas from one responsive workspace."
+        action={<PdfExportButton aiAnalysis={aiAnalysis} report={report} />}
       />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Semester GPA" value={gpa} helper="Current weighted GPA" tone="ocean" />
         <MetricCard
           label="Cumulative GPA"
-          value={projectedCumulativeGpa.toFixed(2)}
+          value={report.projectedCumulativeGpa.toFixed(2)}
           helper="Projected with current term"
           tone="mint"
         />
-        <MetricCard label="Credits" value={credits.toFixed(1)} helper="Current semester load" tone="amber" />
-        <MetricCard label="Subjects" value={String(completedSubjects)} helper="Included in calculation" tone="slate" />
+        <MetricCard label="Credits" value={report.credits.toFixed(1)} helper="Current semester load" tone="amber" />
+        <MetricCard label="Subjects" value={String(report.completedSubjects)} helper="Included in calculation" tone="slate" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
@@ -88,7 +94,7 @@ export default function Dashboard() {
           />
           <div className="mt-6 h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={chartMargins}>
+              <LineChart data={report.trendData} margin={chartMargins}>
                 <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} />
                 <XAxis dataKey="term" tickLine={false} axisLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                 <YAxis
@@ -128,7 +134,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="text-sm font-semibold uppercase text-ocean">Cumulative GPA</p>
-              <p className="mt-2 text-5xl font-semibold text-ink">{projectedCumulativeGpa.toFixed(2)}</p>
+              <p className="mt-2 text-5xl font-semibold text-ink">{report.projectedCumulativeGpa.toFixed(2)}</p>
               <p className="mt-3 text-sm leading-6 text-slate-500">
                 Weighted projection using prior academic history and the active semester subjects.
               </p>
@@ -136,12 +142,12 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-            <InsightPill icon={Target} label="Target Distance" value={`${Math.max(0, 3.8 - projectedCumulativeGpa).toFixed(2)} GPA`} />
-            <InsightPill icon={BookOpenCheck} label="Quality Points" value={qualityPoints.toFixed(1)} />
+            <InsightPill icon={Target} label="Target Distance" value={`${Math.max(0, 3.8 - report.projectedCumulativeGpa).toFixed(2)} GPA`} />
+            <InsightPill icon={BookOpenCheck} label="Quality Points" value={report.qualityPoints.toFixed(1)} />
             <InsightPill
               icon={ArrowUpRight}
               label="Strongest Subject"
-              value={strongestSubject ? strongestSubject.name : 'No subjects'}
+              value={report.strongestSubject ? report.strongestSubject.name : 'No subjects'}
             />
           </div>
         </Panel>
@@ -157,7 +163,7 @@ export default function Dashboard() {
           />
           <div className="mt-6 h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={subjectData} margin={chartMargins}>
+              <BarChart data={report.subjectData} margin={chartMargins}>
                 <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" vertical={false} />
                 <XAxis
                   dataKey="name"
@@ -189,13 +195,32 @@ export default function Dashboard() {
           />
 
           <div className="mt-5 space-y-3">
-            {weakSubjects.map((subject) => (
+            {report.weakSubjects.map((subject) => (
               <WeakSubjectCard key={subject.id} subject={subject} />
             ))}
           </div>
         </Panel>
       </div>
     </section>
+  );
+}
+
+function PdfExportButton({ aiAnalysis, report }) {
+  const fileName = `gpa-report-${new Date().toISOString().slice(0, 10)}.pdf`;
+
+  return (
+    <PDFDownloadLink
+      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+      document={<GpaReportPdf aiAnalysis={aiAnalysis} report={report} />}
+      fileName={fileName}
+    >
+      {({ loading }) => (
+        <>
+          {loading ? <Loader2 className="animate-spin" size={17} aria-hidden="true" /> : <Download size={17} aria-hidden="true" />}
+          {loading ? 'Preparing PDF' : 'Export PDF'}
+        </>
+      )}
+    </PDFDownloadLink>
   );
 }
 
@@ -295,32 +320,4 @@ function SubjectTooltip({ active, payload }) {
       <p className="mt-1 text-xs text-slate-600">Quality points: {subject.qualityPoints.toFixed(1)}</p>
     </div>
   );
-}
-
-function getWeakSubjects(courses) {
-  return [...courses]
-    .sort((first, second) => Number(first.gradePoints) - Number(second.gradePoints))
-    .slice(0, Math.min(3, courses.length));
-}
-
-function getStrongestSubject(courses) {
-  return [...courses].sort((first, second) => Number(second.gradePoints) - Number(first.gradePoints))[0] || null;
-}
-
-function calculateProjectedCumulativeGpa(currentGpa) {
-  const previousCredits = 42;
-  const previousGpa = 3.43;
-  const currentCredits = 10;
-
-  return ((previousGpa * previousCredits) + (currentGpa * currentCredits)) / (previousCredits + currentCredits);
-}
-
-function compactSubjectName(name) {
-  const words = name.split(' ').filter(Boolean);
-
-  if (words.length === 1) {
-    return words[0].slice(0, 10);
-  }
-
-  return words.map((word) => word[0]).join('').slice(0, 8).toUpperCase();
 }
