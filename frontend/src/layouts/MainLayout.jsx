@@ -7,6 +7,7 @@ import {
   GraduationCap,
   LayoutDashboard,
   LineChart,
+  LogOut,
   Menu,
   Moon,
   Search,
@@ -30,6 +31,14 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const ThemeIcon = isDark ? Sun : Moon;
+
+  function handleSignOut() {
+    ['token', 'authToken', 'gpa-intelligence-token', 'gpa-intelligence-user'].forEach((key) => {
+      window.localStorage.removeItem(key);
+      window.sessionStorage.removeItem(key);
+    });
+    window.location.assign('/');
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 text-ink transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
@@ -137,6 +146,17 @@ export default function MainLayout() {
             >
               <Bell size={20} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-amber" />
+            </button>
+
+            <button
+              aria-label="Sign out"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              onClick={handleSignOut}
+              title="Sign out"
+              type="button"
+            >
+              <LogOut size={17} aria-hidden="true" />
+              <span className="hidden xl:inline">Sign out</span>
             </button>
 
             <div className="hidden items-center gap-3 sm:flex">
